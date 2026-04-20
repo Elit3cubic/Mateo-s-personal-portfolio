@@ -598,20 +598,16 @@ export default function Home() {
                 paragraph 
                 sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}
               >
-                With over 5 years of experience in web development, I specialize in creating
-                high-performance, responsive web applications using React, Next.js, and Node.js. My
-                approach combines technical expertise with a strong focus on user experience and clean,
-                maintainable code.
+                I am currently in the process of getting my Associates degree in game 
+                development at MCC I have taken five classes so far and several lab 
+                assignments. I also like to play around with UE5, Unity, and Blockbench.
               </Typography>
               <Typography 
                 variant="body1" 
                 paragraph
                 sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}
               >
-                Previously, I worked at XYZ Technologies where I led the frontend development team,
-                improving application performance by 40% and implementing CI/CD pipelines that reduced
-                deployment time by 65%. I&apos;m passionate about sharing knowledge and have contributed to
-                several open-source projects.
+                
               </Typography>
               
               {/* Resume download button */}

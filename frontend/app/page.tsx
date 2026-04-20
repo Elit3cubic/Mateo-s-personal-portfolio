@@ -598,9 +598,9 @@ export default function Home() {
                 paragraph 
                 sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}
               >
-                I am currently in the process of getting my Associates degree in game 
-                development at MCC I have taken five classes so far and several lab 
-                assignments. I also like to play around with UE5, Unity, and Blockbench.
+                I am currently in the process of getting my Associates degree in game development at MCC 
+                I have taken five classes so far and several lab assignments. I also like to play around with 
+                UE5, Unity, and Blockbench.
               </Typography>
               <Typography 
                 variant="body1" 

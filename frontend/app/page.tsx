@@ -305,27 +305,35 @@ export default function Home() {
     "Redux", "Firebase", "Webpack", "TailwindCSS", "Figma"
   ];
 
-  // Yoda translator state
-  const [yodaInput, setYodaInput] = useState('');
-  const [yodaOutput, setYodaOutput] = useState('');
+  // YouTube to MP4 converter state
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [downloadLinks, setDownloadLinks] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Function to translate text to Yoda speak
-  const translateToYoda = async () => {
-    if (!yodaInput.trim()) return;
+  // Function to convert YouTube URL to MP4 download links
+  const convertToMp4 = async () => {
+    if (!youtubeUrl.trim()) return;
     
+    setLoading(true);
     try {
-      const response = await fetch(`https://yoda-translator.p.rapidapi.com/yoda.json?text=${encodeURIComponent(yodaInput)}`, {
+      const response = await fetch(`https://youtube-to-mp4.p.rapidapi.com/dl?url=${encodeURIComponent(youtubeUrl)}`, {
         method: 'GET',
         headers: {
           'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || 'YOUR_API_KEY_HERE', // Replace with your RapidAPI key
-          'X-RapidAPI-Host': 'yoda-translator.p.rapidapi.com'
+          'X-RapidAPI-Host': 'youtube-to-mp4.p.rapidapi.com'
         }
       });
       
       const data = await response.json();
-      setYodaOutput(data.yoda_translation || 'Hmm, translate that I cannot.');
+      if (data.status === 'ok' && data.video) {
+        setDownloadLinks(data.video);
+      } else {
+        setDownloadLinks({ error: data.msg || 'Failed to convert video' });
+      }
     } catch (error) {
-      setYodaOutput('Error: ' + error.message);
+      setDownloadLinks({ error: 'Error: ' + error.message });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -379,11 +387,11 @@ export default function Home() {
                     Skills
                   </Button>
                   <Button 
-                    onClick={() => scrollToSection('yoda')} 
+                    onClick={() => scrollToSection('youtube')} 
                     color="inherit" 
                     sx={{ mx: 1 }}
                   >
-                    Yoda
+                    YouTube
                   </Button>
                   <Button 
                     onClick={() => scrollToSection('contact')} 
@@ -923,10 +931,10 @@ export default function Home() {
           </Container>
         </Box>
 
-        {/* ===== YODA TRANSLATOR SECTION ===== */}
+        {/* ===== YOUTUBE TO MP4 CONVERTER SECTION ===== */}
         <Box 
           component="section" 
-          id="yoda" 
+          id="youtube" 
           sx={{ 
             py: 12, 
             bgcolor: darkMode ? '#0a1929' : '#f8fafc',
@@ -946,11 +954,11 @@ export default function Home() {
           <Container maxWidth="md" sx={styles.sectionContainer}>
             {/* Section title */}
             <Typography variant="h3" component="h2" sx={styles.sectionTitle}>
-              Yoda Translator
+              YouTube to MP4 Converter
             </Typography>
             <Divider sx={styles.divider} />
             
-            {/* Translator content */}
+            {/* Converter content */}
             <Paper 
               elevation={darkMode ? 1 : 3} 
               sx={{ 
@@ -966,17 +974,17 @@ export default function Home() {
                 paragraph 
                 sx={{ fontSize: '1.1rem', lineHeight: 1.7, textAlign: 'center', mb: 4 }}
               >
-                Enter some text and let Master Yoda translate it into his unique way of speaking!
+                Enter a YouTube video URL and convert it to MP4 format for download!
               </Typography>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <TextField
                   fullWidth
-                  label="Enter text to translate"
+                  label="YouTube Video URL"
                   variant="outlined"
-                  placeholder="May the force be with you"
-                  value={yodaInput}
-                  onChange={(e) => setYodaInput(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
                   InputProps={{
                     sx: {
                       borderRadius: 2,
@@ -985,11 +993,11 @@ export default function Home() {
                 />
                 
                 <Button
-                  onClick={translateToYoda}
+                  onClick={convertToMp4}
                   variant="contained"
                   color="primary"
                   size="large"
-                  disabled={!yodaInput.trim()}
+                  disabled={!youtubeUrl.trim() || loading}
                   sx={{ 
                     py: 1.5, 
                     borderRadius: 2,
@@ -1006,10 +1014,10 @@ export default function Home() {
                     }
                   }}
                 >
-                  Translate to Yoda Speak
+                  {loading ? 'Converting...' : 'Convert to MP4'}
                 </Button>
                 
-                {yodaOutput && (
+                {downloadLinks && (
                   <Paper 
                     sx={{ 
                       p: 3, 
@@ -1018,18 +1026,56 @@ export default function Home() {
                       border: `1px solid ${theme.palette.primary.main}`,
                     }}
                   >
-                    <Typography 
-                      variant="h6" 
-                      component="p" 
-                      sx={{ 
-                        fontStyle: 'italic', 
-                        textAlign: 'center',
-                        color: theme.palette.primary.main,
-                        fontWeight: 500
-                      }}
-                    >
-                      {yodaOutput}
-                    </Typography>
+                    {downloadLinks.error ? (
+                      <Typography 
+                        variant="h6" 
+                        component="p" 
+                        sx={{ 
+                          textAlign: 'center',
+                          color: theme.palette.error.main,
+                          fontWeight: 500
+                        }}
+                      >
+                        {downloadLinks.error}
+                      </Typography>
+                    ) : (
+                      <Box>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            textAlign: 'center',
+                            color: theme.palette.primary.main,
+                            fontWeight: 500,
+                            mb: 2
+                          }}
+                        >
+                          Download Links
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {Object.entries(downloadLinks).map(([quality, url]) => (
+                            <Button
+                              key={quality}
+                              variant="outlined"
+                              color="primary"
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{ 
+                                justifyContent: 'space-between',
+                                textTransform: 'none',
+                                '&:hover': {
+                                  backgroundColor: theme.palette.primary.main,
+                                  color: 'white',
+                                }
+                              }}
+                            >
+                              <span>Download {quality}</span>
+                              <span>⬇️</span>
+                            </Button>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
                   </Paper>
                 )}
               </Box>

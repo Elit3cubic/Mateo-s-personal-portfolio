@@ -305,6 +305,38 @@ export default function Home() {
     "Redux", "Firebase", "Webpack", "TailwindCSS", "Figma"
   ];
 
+  // YouTube to MP4 converter state
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [downloadLinks, setDownloadLinks] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Function to convert YouTube URL to MP4 download links
+  const convertToMp4 = async () => {
+    if (!youtubeUrl.trim()) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`https://youtube-to-mp4.p.rapidapi.com/dl?url=${encodeURIComponent(youtubeUrl)}`, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || 'YOUR_API_KEY_HERE', // Replace with your RapidAPI key
+          'X-RapidAPI-Host': 'youtube-to-mp4.p.rapidapi.com'
+        }
+      });
+      
+      const data = await response.json();
+      if (data.status === 'ok' && data.video) {
+        setDownloadLinks(data.video);
+      } else {
+        setDownloadLinks({ error: data.msg || 'Failed to convert video' });
+      }
+    } catch (error) {
+      setDownloadLinks({ error: 'Error: ' + error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Function to smoothly scroll to different sections
   const scrollToSection = (elementId: string) => {
     const element = document.getElementById(elementId);
@@ -353,6 +385,13 @@ export default function Home() {
                     sx={{ mx: 1 }}
                   >
                     Skills
+                  </Button>
+                  <Button 
+                    onClick={() => scrollToSection('youtube')} 
+                    color="inherit" 
+                    sx={{ mx: 1 }}
+                  >
+                    YouTube
                   </Button>
                   <Button 
                     onClick={() => scrollToSection('contact')} 
@@ -887,6 +926,158 @@ export default function Home() {
                     </Box>
                   ))}
                 </Box>
+              </Box>
+            </Paper>
+          </Container>
+        </Box>
+
+        {/* ===== YOUTUBE TO MP4 CONVERTER SECTION ===== */}
+        <Box 
+          component="section" 
+          id="youtube" 
+          sx={{ 
+            py: 12, 
+            bgcolor: darkMode ? '#0a1929' : '#f8fafc',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Decorative shape - circles */}
+          <Box 
+            sx={{ 
+              ...styles.sectionShape, 
+              top: -50, 
+              left: '20%',
+            }} 
+          />
+          
+          <Container maxWidth="md" sx={styles.sectionContainer}>
+            {/* Section title */}
+            <Typography variant="h3" component="h2" sx={styles.sectionTitle}>
+              YouTube to MP4 Converter
+            </Typography>
+            <Divider sx={styles.divider} />
+            
+            {/* Converter content */}
+            <Paper 
+              elevation={darkMode ? 1 : 3} 
+              sx={{ 
+                p: 4, 
+                borderRadius: 4, 
+                background: darkMode ? 'rgba(19, 47, 76, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <Typography 
+                variant="body1" 
+                paragraph 
+                sx={{ fontSize: '1.1rem', lineHeight: 1.7, textAlign: 'center', mb: 4 }}
+              >
+                Enter a YouTube video URL and convert it to MP4 format for download!
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
+                  fullWidth
+                  label="YouTube Video URL"
+                  variant="outlined"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  InputProps={{
+                    sx: {
+                      borderRadius: 2,
+                    }
+                  }}
+                />
+                
+                <Button
+                  onClick={convertToMp4}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={!youtubeUrl.trim() || loading}
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    background: 'linear-gradient(to right, #3a86ff, #5e60ce)',
+                    boxShadow: '0 4px 14px rgba(58, 134, 255, 0.4)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 6px 20px rgba(58, 134, 255, 0.6)',
+                      transform: 'translateY(-2px)',
+                    },
+                    '&:disabled': {
+                      background: 'rgba(58, 134, 255, 0.3)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }
+                  }}
+                >
+                  {loading ? 'Converting...' : 'Convert to MP4'}
+                </Button>
+                
+                {downloadLinks && (
+                  <Paper 
+                    sx={{ 
+                      p: 3, 
+                      borderRadius: 2, 
+                      backgroundColor: darkMode ? 'rgba(58, 134, 255, 0.1)' : 'rgba(58, 134, 255, 0.05)',
+                      border: `1px solid ${theme.palette.primary.main}`,
+                    }}
+                  >
+                    {downloadLinks.error ? (
+                      <Typography 
+                        variant="h6" 
+                        component="p" 
+                        sx={{ 
+                          textAlign: 'center',
+                          color: theme.palette.error.main,
+                          fontWeight: 500
+                        }}
+                      >
+                        {downloadLinks.error}
+                      </Typography>
+                    ) : (
+                      <Box>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            textAlign: 'center',
+                            color: theme.palette.primary.main,
+                            fontWeight: 500,
+                            mb: 2
+                          }}
+                        >
+                          Download Links
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {Object.entries(downloadLinks).map(([quality, url]) => (
+                            <Button
+                              key={quality}
+                              variant="outlined"
+                              color="primary"
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{ 
+                                justifyContent: 'space-between',
+                                textTransform: 'none',
+                                '&:hover': {
+                                  backgroundColor: theme.palette.primary.main,
+                                  color: 'white',
+                                }
+                              }}
+                            >
+                              <span>Download {quality}</span>
+                              <span>⬇️</span>
+                            </Button>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </Paper>
+                )}
               </Box>
             </Paper>
           </Container>

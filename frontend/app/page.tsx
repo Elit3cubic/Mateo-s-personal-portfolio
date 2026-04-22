@@ -305,6 +305,30 @@ export default function Home() {
     "Redux", "Firebase", "Webpack", "TailwindCSS", "Figma"
   ];
 
+  // Yoda translator state
+  const [yodaInput, setYodaInput] = useState('');
+  const [yodaOutput, setYodaOutput] = useState('');
+
+  // Function to translate text to Yoda speak
+  const translateToYoda = async () => {
+    if (!yodaInput.trim()) return;
+    
+    try {
+      const response = await fetch(`https://yoda-translator.p.rapidapi.com/yoda.json?text=${encodeURIComponent(yodaInput)}`, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY || 'YOUR_API_KEY_HERE', // Replace with your RapidAPI key
+          'X-RapidAPI-Host': 'yoda-translator.p.rapidapi.com'
+        }
+      });
+      
+      const data = await response.json();
+      setYodaOutput(data.yoda_translation || 'Hmm, translate that I cannot.');
+    } catch (error) {
+      setYodaOutput('Error: ' + error.message);
+    }
+  };
+
   // Function to smoothly scroll to different sections
   const scrollToSection = (elementId: string) => {
     const element = document.getElementById(elementId);
@@ -353,6 +377,13 @@ export default function Home() {
                     sx={{ mx: 1 }}
                   >
                     Skills
+                  </Button>
+                  <Button 
+                    onClick={() => scrollToSection('yoda')} 
+                    color="inherit" 
+                    sx={{ mx: 1 }}
+                  >
+                    Yoda
                   </Button>
                   <Button 
                     onClick={() => scrollToSection('contact')} 
@@ -887,6 +918,120 @@ export default function Home() {
                     </Box>
                   ))}
                 </Box>
+              </Box>
+            </Paper>
+          </Container>
+        </Box>
+
+        {/* ===== YODA TRANSLATOR SECTION ===== */}
+        <Box 
+          component="section" 
+          id="yoda" 
+          sx={{ 
+            py: 12, 
+            bgcolor: darkMode ? '#0a1929' : '#f8fafc',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Decorative shape - circles */}
+          <Box 
+            sx={{ 
+              ...styles.sectionShape, 
+              top: -50, 
+              left: '20%',
+            }} 
+          />
+          
+          <Container maxWidth="md" sx={styles.sectionContainer}>
+            {/* Section title */}
+            <Typography variant="h3" component="h2" sx={styles.sectionTitle}>
+              Yoda Translator
+            </Typography>
+            <Divider sx={styles.divider} />
+            
+            {/* Translator content */}
+            <Paper 
+              elevation={darkMode ? 1 : 3} 
+              sx={{ 
+                p: 4, 
+                borderRadius: 4, 
+                background: darkMode ? 'rgba(19, 47, 76, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                border: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <Typography 
+                variant="body1" 
+                paragraph 
+                sx={{ fontSize: '1.1rem', lineHeight: 1.7, textAlign: 'center', mb: 4 }}
+              >
+                Enter some text and let Master Yoda translate it into his unique way of speaking!
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
+                  fullWidth
+                  label="Enter text to translate"
+                  variant="outlined"
+                  placeholder="May the force be with you"
+                  value={yodaInput}
+                  onChange={(e) => setYodaInput(e.target.value)}
+                  InputProps={{
+                    sx: {
+                      borderRadius: 2,
+                    }
+                  }}
+                />
+                
+                <Button
+                  onClick={translateToYoda}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={!yodaInput.trim()}
+                  sx={{ 
+                    py: 1.5, 
+                    borderRadius: 2,
+                    background: 'linear-gradient(to right, #3a86ff, #5e60ce)',
+                    boxShadow: '0 4px 14px rgba(58, 134, 255, 0.4)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      boxShadow: '0 6px 20px rgba(58, 134, 255, 0.6)',
+                      transform: 'translateY(-2px)',
+                    },
+                    '&:disabled': {
+                      background: 'rgba(58, 134, 255, 0.3)',
+                      color: 'rgba(255, 255, 255, 0.5)',
+                    }
+                  }}
+                >
+                  Translate to Yoda Speak
+                </Button>
+                
+                {yodaOutput && (
+                  <Paper 
+                    sx={{ 
+                      p: 3, 
+                      borderRadius: 2, 
+                      backgroundColor: darkMode ? 'rgba(58, 134, 255, 0.1)' : 'rgba(58, 134, 255, 0.05)',
+                      border: `1px solid ${theme.palette.primary.main}`,
+                    }}
+                  >
+                    <Typography 
+                      variant="h6" 
+                      component="p" 
+                      sx={{ 
+                        fontStyle: 'italic', 
+                        textAlign: 'center',
+                        color: theme.palette.primary.main,
+                        fontWeight: 500
+                      }}
+                    >
+                      {yodaOutput}
+                    </Typography>
+                  </Paper>
+                )}
               </Box>
             </Paper>
           </Container>

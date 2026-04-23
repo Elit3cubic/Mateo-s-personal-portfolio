@@ -307,7 +307,7 @@ export default function Home() {
 
   // YouTube to MP4 converter state
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [downloadLinks, setDownloadLinks] = useState(null);
+  const [downloadLinks, setDownloadLinks] = useState<{ [key: string]: string } | { error: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Function to convert YouTube URL to MP4 download links

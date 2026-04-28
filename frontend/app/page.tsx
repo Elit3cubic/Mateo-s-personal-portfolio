@@ -331,7 +331,7 @@ export default function Home() {
         setDownloadLinks({ error: data.msg || 'Failed to convert video' });
       }
     } catch (error) {
-      setDownloadLinks({ error: 'Error: ' + error.message });
+      setDownloadLinks({ error: 'Error: ' + (error as Error).message });
     } finally {
       setLoading(false);
     }

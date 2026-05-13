@@ -1127,7 +1127,9 @@ export default function Home() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {/* Email link */}
                   <Link 
-                    href="mailto:mateojdouglas@yahoo.com" 
+                    href="https://login.yahoo.com/" 
+                    target="_blank"
+                    rel="noopener noreferrer"
                     color="inherit"
                     underline="none"
                     sx={{ 
